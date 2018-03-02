@@ -8,20 +8,13 @@
 
 import Foundation
 
-let RedColor = "Red"
-let GreenColor = "Green"
-
 class WordNode {
     let word:String
-    var distance:Int
     var parent:WordNode?
-    var color: String?
     
-    init(wString: String, wDistance:Int, wParent:WordNode?, wordColor:String?) {
+    init(wString: String, wParent:WordNode?) {
         word = wString
         parent = wParent
-        color = wordColor
-        distance = wDistance
     }
 }
 
@@ -43,94 +36,63 @@ func isAdjucentString(curWord:String, adjucentWord:String) -> Bool {
     return true
 }
 
-func printPrePath(node: WordNode) {
-    if node.parent == nil {
-        print(node.word)
-        return
+func printPath(node: WordNode, count:Int) {
+    if startNode.word == node.word {
+        print("Total Word Count: \(count) \nFull Path of shortest Path: -> \n\(node.word)")
     }
     else {
         // Since the question said "all intermediate words in the transformation must exist in the dictionary". So I am considering there is a path from target word to start word. Otherwise I have to check if there is a parent available for that word or not.
-        printPrePath(node: node.parent!)
+        printPath(node: node.parent!, count: count+1)
         print(node.word)
     }
 }
 
-func printPostPath(node: WordNode) {
-    if node.parent == nil {
-        print(node.word)
-        return
-    }
-    else {
-        // Since the question said "all intermediate words in the transformation must exist in the dictionary". So I am considering there is a path from target word to start word. Otherwise I have to check if there is a parent available for that word or not.
-        print(node.word)
-        printPostPath(node: node.parent!)
-    }
-}
+let startNode = WordNode(wString: "smart", wParent: nil)
+let endNode = WordNode(wString: "brain", wParent: nil)
 
-let startNode = WordNode(wString: "smart", wDistance:0, wParent: nil, wordColor:RedColor)
-let endNode = WordNode(wString: "brain", wDistance:0, wParent: nil, wordColor:GreenColor)
+var wordDictionary = NSMutableArray()
+wordDictionary.add(WordNode(wString: "slack", wParent: nil))
+wordDictionary.add(WordNode(wString: "braid", wParent: nil))
+wordDictionary.add(WordNode(wString: "btarn", wParent: nil))
+wordDictionary.add(WordNode(wString: "blank", wParent: nil))
+wordDictionary.add(WordNode(wString: "brarn", wParent: nil))
+wordDictionary.add(WordNode(wString: "brain", wParent: nil))
+wordDictionary.add(WordNode(wString: "stark", wParent: nil))
+wordDictionary.add(WordNode(wString: "black", wParent: nil))
+wordDictionary.add(WordNode(wString: "bland", wParent: nil))
+//wordDictionary.add(WordNode(wString: "btart", wParent: nil))
+wordDictionary.add(WordNode(wString: "STart", wParent: nil))
+wordDictionary.add(WordNode(wString: "smArk", wParent: nil))
+wordDictionary.add(WordNode(wString: "brand", wParent: nil))
+wordDictionary.add(WordNode(wString: "stack", wParent: nil))
 
-var wordDictionary = [WordNode]()
-wordDictionary.append(WordNode(wString: "slack", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "braid", wDistance:0, wParent: nil, wordColor:nil))
-//wordDictionary.append(WordNode(wString: "btarn", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "blank", wDistance:0, wParent: nil, wordColor:nil))
-//wordDictionary.append(WordNode(wString: "brarn", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "brain", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "stark", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "black", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "bland", wDistance:0, wParent: nil, wordColor:nil))
-//wordDictionary.append(WordNode(wString: "btart", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "STart", wDistance:0, wParent: nil, wordColor:nil))
-//wordDictionary.append(WordNode(wString: "smArk", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "brand", wDistance:0, wParent: nil, wordColor:nil))
-wordDictionary.append(WordNode(wString: "stack", wDistance:0, wParent: nil, wordColor:nil))
-
-/*
- WE ARE CONSIDERING THAT THE DICTIONARY MUST CONTIAN THE TARGET VALUE AND all intermediate words in the transformation must exist in the dictionary
- */
 
 var bfsQueue = [WordNode]()
 bfsQueue.append(startNode)
-bfsQueue.append(endNode)
 
 var foundShortestPath = false
-var distranceTraveled = Int(UInt32.max)
-var printStartNode:WordNode!
-var printEndNode:WordNode!
-
-TestGoto:
-while !bfsQueue.isEmpty && !foundShortestPath {
+while(!bfsQueue.isEmpty && !foundShortestPath) {
     guard let firstNode = bfsQueue.first else {
         break
     }
-    
+
     bfsQueue.removeFirst()
     let group = DispatchGroup()
     group.enter()
     
     DispatchQueue.global(qos: .default).async {
-        for wNode in wordDictionary {
-            if isAdjucentString(curWord: firstNode.word, adjucentWord: wNode.word) {
-                if wNode.color == nil {
+        for wNodeObj in wordDictionary {
+            
+            if let wNode = wNodeObj as? WordNode {
+                if isAdjucentString(curWord: firstNode.word, adjucentWord: wNode.word) {
                     wNode.parent = firstNode
-                    wNode.distance = firstNode.distance + 1
-                    wNode.color = firstNode.color
                     bfsQueue.append(wNode)
-                }
-                else if wNode.color != firstNode.color {
-                    foundShortestPath = true
-                    if distranceTraveled > wNode.distance + firstNode.distance + 1 {
-                        distranceTraveled = wNode.distance + firstNode.distance + 1
-                        
-                        // For printing all the nodes
-                        if wNode.color == RedColor {
-                            printStartNode = wNode
-                            printEndNode = firstNode
-                        } else {
-                            printStartNode = firstNode
-                            printEndNode = wNode
-                        }
+                    wordDictionary.remove(wNode)
+                    
+                    if wNode.word == endNode.word {
+                        endNode.parent = firstNode
+                        foundShortestPath = true
+                        break
                     }
                 }
             }
@@ -142,6 +104,4 @@ while !bfsQueue.isEmpty && !foundShortestPath {
     }
 }
 
-print("Total Distance tranveled: \(distranceTraveled)")
-printPrePath(node: printStartNode)
-printPostPath(node: printEndNode)
+printPath(node: endNode, count: 0)
