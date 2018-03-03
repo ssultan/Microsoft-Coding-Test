@@ -99,7 +99,7 @@ var distranceTraveled = Int(UInt32.max)
 var printStartNode:WordNode!
 var printEndNode:WordNode!
 
-TestGoto:
+
 while !bfsQueue.isEmpty && !foundShortestPath {
     guard let firstNode = bfsQueue.first else {
         break
@@ -109,7 +109,7 @@ while !bfsQueue.isEmpty && !foundShortestPath {
     let group = DispatchGroup()
     group.enter()
     
-    DispatchQueue.global(qos: .default).async {
+    DispatchQueue.global(qos: .background).async {
         for wNode in wordDictionary {
             if isAdjucentString(curWord: firstNode.word, adjucentWord: wNode.word) {
                 if wNode.color == nil {
