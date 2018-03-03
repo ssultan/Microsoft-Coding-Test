@@ -80,7 +80,7 @@ while(!bfsQueue.isEmpty && !foundShortestPath) {
     let group = DispatchGroup()
     group.enter()
     
-    DispatchQueue.global(qos: .default).async {
+    DispatchQueue.global(qos: .background).async {
         for wNodeObj in wordDictionary {
             
             if let wNode = wNodeObj as? WordNode {
